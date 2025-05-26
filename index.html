@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>INR Exchange - Professional Currency Rates</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --success-color: #10b981;
+            --danger-color: #ef4444;
+            --warning-color: #f59e0b;
+            --glass-bg: rgba(255, 255, 255, 0.12);
+            --glass-border: rgba(255, 255, 255, 0.18);
+            --text-primary: #1f2937;
+            --text-secondary: #6b7280;
+            --shadow-light: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-medium: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            --shadow-heavy: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--primary-gradient);
+            min-height: 100vh;
+            color: var(--text-primary);
+            overflow-x: hidden;
+        }
+
+        /* Animated background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(120, 219, 255, 0.2) 0%, transparent 50%);
+            animation: float 20s ease-in-out infinite;
+            z-index: -1;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            33% { transform: translateY(-30px) rotate(2deg); }
+            66% { transform: translateY(-15px) rotate(-1deg); }
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header Section */
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding: 3rem 0;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .brand-icon {
+            width: 60px;
+            height: 60px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: white;
+            box-shadow: var(--shadow-medium);
+        }
+
+        .brand-title {
+            font-size: 3.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #fff 0%, #f0f9ff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 4px 20px rgba(255,255,255,0.3);
+            letter-spacing: -0.02em;
+        }
+
+        .brand-subtitle {
+            font-size: 1.25rem;
+            color: rgba(255,255,255,0.85);
+            font-weight: 400;
+            margin-bottom: 2rem;
+        }
+
+        /* Stats Bar */
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .stat-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: var(--shadow-medium);
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-heavy);
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            color: rgba(255,255,255,0.7);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        /* Controls Section */
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 3rem;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .search-container {
+            flex: 1;
+            min-width: 300px;
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 1rem 1rem 1rem 3rem;
+            font-size: 1rem;
+            border: none;
+            border-radius: 15px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            color: white;
+            placeholder-color: rgba(255,255,255,0.6);
+            outline: none;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow-light);
+        }
+
+        .search-input::placeholder {
+            color: rgba(255,255,255,0.6);
+        }
+
+        .search-input:focus {
+            transform: scale(1.02);
+            box-shadow: var(--shadow-medium);
+            border-color: rgba(255,255,255,0.3);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: rgba(255,255,255,0.6);
+            font-size: 1.1rem;
+        }
+
+        .refresh-btn {
+            padding: 1rem 1.5rem;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 15px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 500;
+            box-shadow: var(--shadow-light);
+        }
+
+        .refresh-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-medium);
+        }
+
+        .refresh-btn.loading {
+            pointer-events: none;
+        }
+
+        .refresh-btn.loading i {
+            animation: spin 1s linear infinite;
+        }
+
+        /* Currency Grid */
+        .currency-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .currency-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 2rem;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            box-shadow: var(--shadow-light);
+        }
+
+        .currency-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            transform: translateX(-100%);
+            transition: transform 0.6s ease;
+        }
+
+        .currency-card:hover::before {
+            transform: translateX(100%);
+        }
+
+        .currency-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: var(--shadow-heavy);
+            border-color: rgba(255,255,255,0.3);
+        }
+
+        .currency-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1.5rem;
+        }
+
+        .currency-info {
+            flex: 1;
+        }
+
+        .currency-name {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: white;
+            margin-bottom: 0.25rem;
+        }
+
+        .currency-code {
+            font-size: 0.875rem;
+            color: rgba(255,255,255,0.7);
+            background: rgba(255,255,255,0.1);
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            display: inline-block;
+        }
+
+        .currency-flag {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--secondary-gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            color: white;
+            font-size: 0.875rem;
+        }
+
+        .currency-rate {
+            font-size: 2.25rem;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 1rem;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .currency-change {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            width: fit-content;
+        }
+
+        .currency-change.positive {
+            background: rgba(16, 185, 129, 0.2);
+            color: #10b981;
+        }
+
+        .currency-change.negative {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+        }
+
+        .currency-change.neutral {
+            background: rgba(107, 114, 128, 0.2);
+            color: #9ca3af;
+        }
+
+        /* Loading and Error States */
+        .loading-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 4rem 2rem;
+            text-align: center;
+        }
+
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid rgba(255,255,255,0.3);
+            border-top: 4px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 1.5rem;
+        }
+
+        .loading-text {
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+
+        .error-container {
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #fecaca;
+            padding: 1.5rem;
+            border-radius: 15px;
+            text-align: center;
+            margin: 2rem 0;
+        }
+
+        .error-icon {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 2rem 0;
+            color: rgba(255,255,255,0.7);
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .last-updated {
+            font-size: 0.875rem;
+            margin-bottom: 1rem;
+        }
+
+        /* Animations */
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in {
+            animation: fadeInUp 0.6s ease forwards;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            .brand-title {
+                font-size: 2.5rem;
+            }
+
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .search-container {
+                min-width: unset;
+            }
+
+            .currency-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .currency-card {
+                padding: 1.5rem;
+            }
+
+            .stats-bar {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .brand-title {
+                font-size: 2rem;
+            }
+            
+            .stats-bar {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="brand">
+                <div class="brand-icon">
+                    <i class="fas fa-rupee-sign"></i>
+                </div>
+                <h1 class="brand-title">INR Exchange</h1>
+            </div>
+            <p class="brand-subtitle">Professional Real-Time Currency Exchange Rates</p>
+        </header>
+
+        <!-- Stats Bar -->
+        <div class="stats-bar">
+            <div class="stat-card">
+                <div class="stat-value" id="totalCurrencies">-</div>
+                <div class="stat-label">Total Currencies</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="lastUpdate">-</div>
+                <div class="stat-label">Last Updated</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="apiStatus">-</div>
+                <div class="stat-label">API Status</div>
+            </div>
+        </div>
+
+        <!-- Controls -->
+        <div class="controls">
+            <div class="search-container">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" class="search-input" placeholder="Search currencies (USD, EUR, Bitcoin...)" id="searchInput">
+            </div>
+            <button class="refresh-btn" id="refreshBtn">
+                <i class="fas fa-sync-alt"></i>
+                Refresh Rates
+            </button>
+        </div>
+
+        <!-- Loading State -->
+        <div id="loadingContainer" class="loading-container">
+            <div class="loading-spinner"></div>
+            <div class="loading-text">Fetching live exchange rates...</div>
+        </div>
+
+        <!-- Error State -->
+        <div id="errorContainer" class="error-container" style="display: none;">
+            <div class="error-icon">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <div>Unable to fetch live exchange rates. Please check your connection and try again.</div>
+        </div>
+
+        <!-- Currency Grid -->
+        <div id="currencyGrid" class="currency-grid" style="display: none;"></div>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <div class="last-updated" id="footerUpdate">Powered by multiple currency APIs for maximum reliability</div>
+            <div>© 2024 INR Exchange - Professional Currency Rates</div>
+        </footer>
+    </div>
+
+    <script>
+    // Currency data and configuration
+    const currencyNames = {
+        'USD': 'US Dollar', 'EUR': 'Euro', 'GBP': 'British Pound', 'JPY': 'Japanese Yen',
+        'AUD': 'Australian Dollar', 'CAD': 'Canadian Dollar', 'CHF': 'Swiss Franc',
+        'CNY': 'Chinese Yuan', 'SGD': 'Singapore Dollar', 'HKD': 'Hong Kong Dollar',
+        'KRW': 'South Korean Won', 'MXN': 'Mexican Peso', 'BRL': 'Brazilian Real',
+        'RUB': 'Russian Ruble', 'ZAR': 'South African Rand', 'AED': 'UAE Dirham',
+        'SAR': 'Saudi Riyal', 'THB': 'Thai Baht', 'TRY': 'Turkish Lira',
+        'PLN': 'Polish Zloty', 'SEK': 'Swedish Krona', 'NOK': 'Norwegian Krone',
+        'DKK': 'Danish Krone', 'NZD': 'New Zealand Dollar', 'ILS': 'Israeli Shekel',
+        'CZK': 'Czech Koruna', 'HUF': 'Hungarian Forint', 'RON': 'Romanian Leu',
+        'PHP': 'Philippine Peso', 'IDR': 'Indonesian Rupiah', 'MYR': 'Malaysian Ringgit',
+        'VND': 'Vietnamese Dong', 'EGP': 'Egyptian Pound', 'QAR': 'Qatari Riyal',
+        'KWD': 'Kuwaiti Dinar', 'BHD': 'Bahraini Dinar', 'OMR': 'Omani Rial',
+        'JOD': 'Jordanian Dinar', 'LKR': 'Sri Lankan Rupee', 'PKR': 'Pakistani Rupee',
+        'BDT': 'Bangladeshi Taka', 'NPR': 'Nepalese Rupee', 'MMK': 'Myanmar Kyat'
+    };
+
+    let allCurrencies = [];
+    let filteredCurrencies = [];
+    let previousRates = {};
+    let isLoading = false;
+
+    // API endpoints (no API keys required)
+    const apiEndpoints = [
+        'https://api.exchangerate.host/latest?base=INR',
+        'https://api.frankfurter.app/latest?from=INR'
+    ];
+
+    // Fetch exchange rates with fallback
+    async function fetchExchangeRates() {
+        if (isLoading) return;
+
+        isLoading = true;
+        updateLoadingState(true);
+        updateApiStatus('Connecting...');
+
+        for (let i = 0; i < apiEndpoints.length; i++) {
+            try {
+                console.log(`Trying API ${i + 1}:`, apiEndpoints[i]);
+                const response = await fetch(apiEndpoints[i], {
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+
+                const data = await response.json();
+                console.log('API Response:', data);
+
+                // Handle different API response formats
+                let rates;
+                if (apiEndpoints[i].includes('exchangerate.host')) {
+                    if (!data.success || !data.rates) throw new Error('Invalid response from exchangerate.host');
+                    rates = data.rates;
+                } else if (apiEndpoints[i].includes('frankfurter')) {
+                    if (!data.rates) throw new Error('Invalid response from Frankfurter');
+                    rates = data.rates;
+                    rates.INR = 1; // Ensure INR to INR is 1
+                }
+
+                if (rates) {
+                    await processRatesData({ rates });
+                    updateApiStatus('Online');
+                    updateLoadingState(false);
+                    isLoading = false;
+                    return;
+                }
+            } catch (error) {
+                console.error(`API ${i + 1} failed:`, error);
+                updateApiStatus(`Trying API ${i + 2}...`);
+            }
+        }
+
+        // All APIs failed, show error
+        console.error('All APIs failed, showing error');
+        updateApiStatus('Offline');
+        showError();
+        isLoading = false;
+    }
+
+    // Process rates data
+    async function processRatesData(data) {
+        const rates = data.rates || {};
+        console.log('Processing rates:', Object.keys(rates).length, 'currencies');
+
+        // Store previous rates for comparison
+        previousRates = {};
+        allCurrencies.forEach(curr => {
+            previousRates[curr.code] = curr.rate;
+        });
+
+        // Create currency objects
+        allCurrencies = [];
+        const priorityCurrencies = ['USD', 'EUR', 'GBP', 'JPY', 'AUD', 'CAD', 'CHF', 'CNY'];
+        const otherCurrencies = Object.keys(rates)
+            .filter(code => !priorityCurrencies.includes(code) && currencyNames[code])
+            .slice(0, 30);
+
+        const orderedCurrencies = [...priorityCurrencies, ...otherCurrencies];
+
+        orderedCurrencies.forEach(code => {
+            if (rates[code] && currencyNames[code]) {
+                const currentRate = rates[code];
+                const previousRate = previousRates[code];
+                let change = 'New';
+                let changeType = 'neutral';
+
+                if (previousRate && previousRate !== currentRate) {
+                    const changePercent = ((currentRate - previousRate) / previousRate) * 100;
+                    change = `${changePercent >= 0 ? '+' : ''}${changePercent.toFixed(3)}%`;
+                    changeType = changePercent >= 0 ? 'positive' : 'negative';
+                }
+
+                allCurrencies.push({
+                    code,
+                    name: currencyNames[code],
+                    rate: currentRate,
+                    change,
+                    changeType
+                });
+            }
+        });
+
+        filteredCurrencies = [...allCurrencies];
+        console.log('Processed currencies:', allCurrencies.length);
+
+        renderCurrencies();
+        updateStats();
+        updateLastUpdated();
+    }
+
+    // Render currency cards
+    function renderCurrencies() {
+        const grid = document.getElementById('currencyGrid');
+        grid.innerHTML = '';
+
+        if (filteredCurrencies.length === 0) {
+            grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: rgba(255,255,255,0.7); padding: 3rem; font-size: 1.1rem;">No currencies found matching your search.</div>';
+            grid.style.display = 'grid';
+            return;
+        }
+
+        filteredCurrencies.forEach((currency, index) => {
+            const card = document.createElement('div');
+            card.className = 'currency-card fade-in';
+            card.style.animationDelay = `${index * 0.05}s`;
+
+            const formattedRate = formatRate(currency.rate);
+            const flagCode = currency.code.slice(0, 2);
+
+            card.innerHTML = `
+                <div class="currency-header">
+                    <div class="currency-info">
+                        <div class="currency-name">${currency.name}</div>
+                        <div class="currency-code">${currency.code}</div>
+                    </div>
+                    <div class="currency-flag">${flagCode}</div>
+                </div>
+                <div class="currency-rate">${formattedRate}</div>
+                <div class="currency-change ${currency.changeType}">
+                    <i class="fas fa-${currency.changeType === 'positive' ? 'arrow-up' : currency.changeType === 'negative' ? 'arrow-down' : 'minus'}"></i>
+                    ${currency.change}
+                </div>
+            `;
+
+            grid.appendChild(card);
+        });
+
+        grid.style.display = 'grid';
+    }
+
+    // Utility functions
+    function formatRate(rate) {
+        if (rate < 0.001) return rate.toExponential(3);
+        if (rate < 1) return rate.toFixed(6);
+        if (rate < 100) return rate.toFixed(4);
+        return rate.toLocaleString('en-US', { maximumFractionDigits: 2 });
+    }
+
+    function updateLoadingState(loading) {
+        const loadingContainer = document.getElementById('loadingContainer');
+        const currencyGrid = document.getElementById('currencyGrid');
+        const errorContainer = document.getElementById('errorContainer');
+
+        if (loading) {
+            loadingContainer.style.display = 'flex';
+            currencyGrid.style.display = 'none';
+            errorContainer.style.display = 'none';
+        } else {
+            loadingContainer.style.display = 'none';
+        }
+    }
+
+    function showError() {
+        document.getElementById('loadingContainer').style.display = 'none';
+        document.getElementById('currencyGrid').style.display = 'none';
+        document.getElementById('errorContainer').style.display = 'block';
+    }
+
+    function updateStats() {
+        document.getElementById('totalCurrencies').textContent = allCurrencies.length;
+    }
+
+    function updateApiStatus(status) {
+        document.getElementById('apiStatus').textContent = status;
+    }
+
+    function updateLastUpdated() {
+        const now = new Date();
+        const timeString = now.toLocaleTimeString('en-US', {
+            hour12: false,
+            timeZone: 'Asia/Kolkata'
+        });
+        document.getElementById('lastUpdate').textContent = timeString;
+        document.getElementById('footerUpdate').textContent =
+            `Last updated: ${now.toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })} IST`;
+    }
+
+    // Search functionality
+    function filterCurrencies(searchTerm) {
+        if (!searchTerm.trim()) {
+            filteredCurrencies = [...allCurrencies];
+        } else {
+            const term = searchTerm.toLowerCase();
+            filteredCurrencies = allCurrencies.filter(currency =>
+                currency.name.toLowerCase().includes(term) ||
+                currency.code.toLowerCase().includes(term)
+            );
+        }
+        renderCurrencies();
+    }
+
+    // Event listeners
+    document.getElementById('searchInput').addEventListener('input', (e) => {
+        filterCurrencies(e.target.value);
+    });
+
+    document.getElementById('refreshBtn').addEventListener('click', () => {
+        if (!isLoading) {
+            fetchExchangeRates();
+        }
+    });
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+        updateApiStatus('Initializing...');
+        fetchExchangeRates();
+
+        // Auto refresh every 15 minutes
+        setInterval(fetchExchangeRates, 900000);
+    });
+</script>
+</body>
+</html>
